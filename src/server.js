@@ -11,20 +11,26 @@ import adminRoutes from "./routes/admin.js";
 dotenv.config();
 
 const fastify = Fastify({
-  logger: {
-    level: process.env.LOG_LEVEL || "info",
-    transport: {
-      target: "pino-pretty",
-      options: {
-        colorize: true,
-      },
-    },
-  },
+  logger:
+    process.env.NODE_ENV === "production"
+      ? false
+      : {
+          level: process.env.LOG_LEVEL || "info",
+          transport: {
+            target: "pino-pretty",
+            options: {
+              colorize: true,
+            },
+          },
+        },
 });
 
 // Configurar CORS
 await fastify.register(cors, {
-  origin: process.env.CORS_ORIGIN || "http://localhost:3001",
+  origin: process.env.CORS_ORIGIN || [
+    "http://localhost:3001",
+    "https://your-frontend-domain.vercel.app",
+  ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
 });
@@ -84,7 +90,7 @@ fastify.setErrorHandler((error, request, reply) => {
   });
 });
 
-// Função para iniciar o servidor
+// Função para iniciar o servidor (apenas para desenvolvimento local)
 const start = async () => {
   try {
     const host = process.env.HOST || "0.0.0.0";
@@ -106,7 +112,7 @@ const start = async () => {
 
 // Graceful shutdown
 const gracefulShutdown = async (signal) => {
-  console.log(`\n📴 Recebido sinal ${signal}, encerrando servidor...`);
+  console.log(`\n🔴 Recebido sinal ${signal}, encerrando servidor...`);
 
   try {
     await fastify.close();
@@ -118,20 +124,29 @@ const gracefulShutdown = async (signal) => {
   }
 };
 
-// Capturar sinais de encerramento
-process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
-process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+// Iniciar servidor apenas em desenvolvimento
+if (process.env.NODE_ENV !== "production") {
+  // Capturar sinais de encerramento
+  process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+  process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 
-// Capturar erros não tratados
-process.on("unhandledRejection", (reason, promise) => {
-  console.error("Unhandled Rejection at:", promise, "reason:", reason);
-  gracefulShutdown("unhandledRejection");
-});
+  // Capturar erros não tratados
+  process.on("unhandledRejection", (reason, promise) => {
+    console.error("Unhandled Rejection at:", promise, "reason:", reason);
+    gracefulShutdown("unhandledRejection");
+  });
 
-process.on("uncaughtException", (error) => {
-  console.error("Uncaught Exception:", error);
-  gracefulShutdown("uncaughtException");
-});
+  process.on("uncaughtException", (error) => {
+    console.error("Uncaught Exception:", error);
+    gracefulShutdown("uncaughtException");
+  });
 
-// Iniciar servidor
-start();
+  // Iniciar servidor
+  start();
+}
+
+// Export handler para Vercel
+export default async function handler(req, res) {
+  await fastify.ready();
+  fastify.server.emit("request", req, res);
+}
