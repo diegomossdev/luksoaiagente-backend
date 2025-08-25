@@ -29,7 +29,8 @@ const fastify = Fastify({
 await fastify.register(cors, {
   origin: process.env.CORS_ORIGIN || [
     "http://localhost:3001",
-    "https://your-frontend-domain.vercel.app",
+    "http://localhost:5173",
+    "https://luksoaiagente-frontend-1hi4woqfe-diego-mossmanns-projects.vercel.app",
   ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
