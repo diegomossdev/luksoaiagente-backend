@@ -31,6 +31,7 @@ await fastify.register(cors, {
     "http://localhost:3001",
     "http://localhost:5173",
     "https://luksoaiagente-frontend-1hi4woqfe-diego-mossmanns-projects.vercel.app",
+    "https://luksoaiagente-frontend.vercel.app",
   ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
