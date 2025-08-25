@@ -2,7 +2,7 @@ import { supabase, supabaseAdmin } from "../config/supabase.js";
 import { OpenAIService } from "../services/openai.js";
 import { requireUser } from "../middleware/auth.js";
 
-const ASSISTANT_ID = "asst_NzAFYE1tpUniZUGotuzhqN5h";
+const ASSISTANT_ID = process.env.ASSISTANT_ID;
 
 export default async function chatRoutes(fastify, options) {
   fastify.post(
