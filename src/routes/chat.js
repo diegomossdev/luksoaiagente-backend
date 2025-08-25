@@ -229,7 +229,7 @@ export default async function chatRoutes(fastify, options) {
             "id, client_id, client_fullname, openai_thread_id, created_at, updated_at",
             { count: "exact" } // <- pega o total ignorando o range
           )
-          .eq("client_id", userId)
+          // .eq("client_id", userId)
           .order("updated_at", { ascending: false })
           .range(from, to);
 
