@@ -274,12 +274,11 @@ export default async function chatRoutes(fastify, options) {
         const userId = request.user.id;
         const { threadId } = request.params;
 
-        // Verificar se a thread pertence ao usuário usando nova estrutura
         const { data: thread, error: threadError } = await supabaseAdmin
           .from("chat_threads")
           .select("openai_thread_id, client_fullname")
           .eq("openai_thread_id", threadId)
-          .eq("client_id", userId)
+          // .eq("client_id", userId)
           .single();
 
         if (threadError || !thread) {
